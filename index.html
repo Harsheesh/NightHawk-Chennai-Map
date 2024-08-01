@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NightHawk Chennai</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        #info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCoAQtKUOiIsp4Zw28f8uuO14SBq9LRNNc"></script>
+    <script>
+        let map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 13.0827, lng: 80.2707 }, // Centered on Chennai
+                zoom: 12
+            });
+
+            const distributionData = [
+                { lat: 12.989123230937366, lng: 80.20462105867132, count: 31 },
+                { lat: 13.003094179978072, lng: 80.25619559521486, count: 20 },
+                { lat: 13.03999471679856, lng: 80.21231028344468, count: 9 },
+                { lat: 13.004136440483641, lng: 80.26669698330124, count: 10 },
+                { lat: 13.07573080918143, lng: 80.26109134496119, count: 6 }
+            ];
+
+            const customIcon = {
+                path: "M12 2C8.1 2 5 5.1 5 9c0 3.9 7 13 7 13s7-9.1 7-13c0-3.9-3.1-7-7-7z",
+                fillColor: 'white',
+                fillOpacity: 1,
+                strokeColor: 'black',
+                strokeWeight: 2,
+                scale: 1.5,
+                labelOrigin: new google.maps.Point(12, 10)
+            };
+
+            distributionData.forEach(point => {
+                const marker = new google.maps.Marker({
+                    position: { lat: point.lat, lng: point.lng },
+                    map: map,
+                    icon: customIcon,
+                    label: {
+                        text: `${point.count}`,
+                        color: 'black',
+                        fontSize: '14px',
+                        fontWeight: 'bold'
+                    }
+                });
+
+                const infowindow = new google.maps.InfoWindow({
+                    content: `<div>Distribution Count: ${point.count}</div>`
+                });
+
+                marker.addListener('click', () => {
+                    infowindow.open(map, marker);
+                });
+            });
+
+            // POI Data
+            const poiData = [
+                { lat: 13.09320103257842, lng: 80.20853431552317, type: 'bakery', name: 'Old Madras Baking Company' },
+                { lat: 12.994206460437242, lng: 80.21603053775632, type: 'mall', name: 'Phoenix Marketcity' },
+                { lat: 12.99280521168318, lng: 80.25596336050545, type: 'theatre', name: 'S2 Thyagaraja Cinemas' },
+                { lat: 13.045925383869283, lng: 80.24403562209004, type: 'pub', name: '10 Downing Street' },
+                { lat: 13.024448662263959, lng: 80.242150749296, type: 'cafe', name: 'Ciclo Cafe' },
+                { lat: 13.050734445989734, lng: 80.23684578348309, type: 'restaurant', name: 'Coal Barbecues' },
+                { lat: 13.056565810176352, lng: 80.24927813799928, type: 'nightclub', name: 'Pasha The Park' },
+                { lat: 12.917062188050343, lng: 80.25086610572372, type: 'themepark', name: 'VGP Universal Kingdom' },
+                { lat: 13.000025048801035, lng: 80.21598866053404, type: 'turf', name: 'Turf 137' },
+                { lat: 13.07144848424716, lng: 80.25714843805844, type: 'entertainment', name: 'Gameistry Entertainment' }
+            ];
+
+            const poiIcons = {
+                'theatre': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'blue',
+                    fillOpacity: 1,
+                    strokeColor: 'blue',
+                    strokeWeight: 2,
+                    scale: 3.5
+                },
+                'mall': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'green',
+                    fillOpacity: 1,
+                    strokeColor: 'green',
+                    strokeWeight: 2,
+                    scale: 3.5
+                },
+                'bakery': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'red',
+                    fillOpacity: 1,
+                    strokeColor: 'red',
+                    strokeWeight: 2,
+                    scale: 3.5
+                },
+                'pub': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'purple',
+                    fillOpacity: 1,
+                    strokeColor: 'purple',
+                    strokeWeight: 2,
+                    scale: 3.5
+                },
+                'cafe': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'orange',
+                    fillOpacity: 1,
+                    strokeColor: 'orange',
+                    strokeWeight: 2,
+                    scale: 3.5
+                },
+                'restaurant': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'pink',
+                    fillOpacity: 1,
+                    strokeColor: 'pink',
+                    strokeWeight: 2,
+                    scale: 3.5
+                },
+                'nightclub': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'brown',
+                    fillOpacity: 1,
+                    strokeColor: 'brown',
+                    strokeWeight: 2,
+                    scale: 3.5
+                },
+                'themepark': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'cyan',
+                    fillOpacity: 1,
+                    strokeColor: 'cyan',
+                    strokeWeight: 2,
+                    scale: 3.5
+                },
+                'turf': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'magenta',
+                    fillOpacity: 1,
+                    strokeColor: 'magenta',
+                    strokeWeight: 2,
+                    scale: 3.5
+                },
+                'entertainment': {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    fillColor: 'lime',
+                    fillOpacity: 1,
+                    strokeColor: 'lime',
+                    strokeWeight: 2,
+                    scale: 3.5
+                }
+            };
+
+            poiData.forEach(poi => {
+                const marker = new google.maps.Marker({
+                    position: { lat: poi.lat, lng: poi.lng },
+                    map: map,
+                    icon: poiIcons[poi.type]
+                });
+
+                const infowindow = new google.maps.InfoWindow({
+                    content: `<div>${poi.name} (${poi.type.charAt(0).toUpperCase() + poi.type.slice(1)})</div>`
+                });
+
+                marker.addListener('click', () => {
+                    infowindow.open(map, marker);
+                });
+            });
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <div id="map"></div>
+    <div id="info">
+        <h2>Distribution Information</h2>
+        <p>This map shows the location-wise distribution points of our energy drink across various areas in Chennai. Click on the markers to see the number of distributions at each location.</p>
+        <h3>Points of Interest</h3>
+        <ul>
+            <li style="color: blue;">Theatres</li>
+            <li style="color: green;">Malls</li>
+            <li style="color: red;">Bakeries</li>
+            <li style="color: purple;">Pubs</li>
+            <li style="color: orange;">Cafes</li>
+            <li style="color: pink;">Restaurants</li>
+            <li style="color: brown;">Night Clubs</li>
+            <li style="color: cyan;">Theme Parks</li>
+            <li style="color: magenta;">Turfs</li>
+            <li style="color: lime;">Entertainment</li>
+        </ul>
+    </div>
+</body>
+</html>
