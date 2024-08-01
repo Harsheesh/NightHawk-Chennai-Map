@@ -16,10 +16,14 @@
             background-color: #f9f9f9;
             border: 1px solid #ddd;
         }
+        .poi-link {
+            cursor: pointer;
+            text-decoration: underline;
+        }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCoAQtKUOiIsp4Zw28f8uuO14SBq9LRNNc"></script>
     <script>
-        let map;
+        let map, poiMarkers = {};
 
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
@@ -69,16 +73,198 @@
 
             // POI Data
             const poiData = [
-                { lat: 13.09320103257842, lng: 80.20853431552317, type: 'bakery', name: 'Old Madras Baking Company' },
-                { lat: 12.994206460437242, lng: 80.21603053775632, type: 'mall', name: 'Phoenix Marketcity' },
-                { lat: 12.99280521168318, lng: 80.25596336050545, type: 'theatre', name: 'S2 Thyagaraja Cinemas' },
-                { lat: 13.045925383869283, lng: 80.24403562209004, type: 'pub', name: '10 Downing Street' },
-                { lat: 13.024448662263959, lng: 80.242150749296, type: 'cafe', name: 'Ciclo Cafe' },
-                { lat: 13.050734445989734, lng: 80.23684578348309, type: 'restaurant', name: 'Coal Barbecues' },
-                { lat: 13.056565810176352, lng: 80.24927813799928, type: 'nightclub', name: 'Pasha The Park' },
-                { lat: 12.917062188050343, lng: 80.25086610572372, type: 'themepark', name: 'VGP Universal Kingdom' },
-                { lat: 13.000025048801035, lng: 80.21598866053404, type: 'turf', name: 'Turf 137' },
-                { lat: 13.07144848424716, lng: 80.25714843805844, type: 'entertainment', name: 'Gameistry Entertainment' }
+            { lat: 12.994206460437242, lng: 80.21603053775632, type: 'mall', name: 'Phoenix Marketcity' },
+            { lat: 12.99280521168318, lng: 80.25596336050545, type: 'theatre', name: 'S2 Thyagaraja Cinemas' },
+            { lat: 13.045925383869283, lng: 80.24403562209004, type: 'pub', name: '10 Downing Street' },
+            { lat: 13.024448662263959, lng: 80.242150749296, type: 'cafe', name: 'Ciclo Cafe' },
+            { lat: 13.050734445989734, lng: 80.23684578348309, type: 'restaurant', name: 'Coal Barbecues' },
+            { lat: 13.056565810176352, lng: 80.24927813799928, type: 'pub', name: 'Pasha The Park' },
+            { lat: 12.917062188050343, lng: 80.25086610572372, type: 'themepark', name: 'VGP Universal Kingdom' },
+            { lat: 13.000025048801035, lng: 80.21598866053404, type: 'turf', name: 'Turf 137' },
+            { lat: 13.065975207032292, lng: 80.2390773, type: 'bakery', name: 'Cakewalk' },
+            { lat: 13.07144848424716, lng: 80.25714843805844, type: 'entertainment', name: 'Gameistry Entertainment' },
+            { lat: 13.0337478, lng: 80.2624474, type: 'bakery', name: 'Fresh Baked Goodness' },
+            { lat: 13.084018, lng: 80.209912, type: 'bakery', name: 'Old Madras Baking Company' },
+            { lat: 13.064951, lng: 80.23907729999999, type: 'bakery', name: 'Cakewalk' },
+            { lat: 13.028999, lng: 80.252487, type: 'bakery', name: 'The Cupcake Company' },
+            { lat: 13.0063744, lng: 80.2555129, type: 'bakery', name: 'Adyar Bakery' },
+            { lat: 13.0346651, lng: 80.2571682, type: 'bakery', name: 'Winners Bakery' },
+            { lat: 13.0720135, lng: 80.2530136, type: 'bakery', name: 'La Chocolate / Delhi Highway' },
+            { lat: 13.0073741, lng: 80.2567096, type: 'bakery', name: 'Hot Breads' },
+            { lat: 13.0897007, lng: 80.2584641, type: 'bakery', name: 'Smith Field Bakery' },
+            { lat: 13.0581569, lng: 80.23330519999999, type: 'bakery', name: 'Cafe CakeBee' },
+            { lat: 13.0569467, lng: 80.242469, type: 'bakery', name: 'The Old Madras Baking Company' },
+            { lat: 13.086471, lng: 80.2572422, type: 'bakery', name: 'Whitefield Bakery' },
+            { lat: 13.0344694, lng: 80.2736211, type: 'bakery', name: 'The Crown Bakery' },
+            { lat: 13.0919415, lng: 80.2197657, type: 'bakery', name: "Pantry D'or" },
+            { lat: 13.0590531, lng: 80.2639897, type: 'bakery', name: 'Krispy Kreme' },
+            { lat: 13.1088525, lng: 80.2419357, type: 'bakery', name: 'Chennai Classic Cakes' },
+            { lat: 13.0649831, lng: 80.25848719999999, type: 'bakery', name: 'Donut House' },
+            { lat: 12.9878382, lng: 80.256292, type: 'bakery', name: 'Adyar Bakery' },
+            { lat: 13.1210302, lng: 80.2325781, type: 'bakery', name: 'Ajantha Bakers & Sweets' },
+            { lat: 13.0637083, lng: 80.2362563, type: 'bakery', name: 'Jeanne Ferrer' },
+            { lat: 13.064758, lng: 80.2582575, type: 'bakery', name: "Writer's Cafe" },
+            { lat: 12.9448611, lng: 80.2389307, type: 'bakery', name: 'The Bakers Code' },
+            { lat: 13.0857106, lng: 80.2549871, type: 'bakery', name: 'FB Cakes' },
+            { lat: 13.0219471, lng: 80.2091196, type: 'bakery', name: 'Dona Cakes World' },
+            { lat: 13.0285514, lng: 80.2722721, type: 'bakery', name: 'Verghese Bakery' },
+            { lat: 13.0899783, lng: 80.2862191, type: 'bakery', name: 'G. Gopaul Dairy' },
+            { lat: 13.0921567, lng: 80.20668909999999, type: 'bakery', name: 'Sugar Brush' },
+            { lat: 13.082568, lng: 80.2316792, type: 'bakery', name: 'Pastry Maniaa' },
+            { lat: 13.0895289, lng: 80.2104792, type: 'bakery', name: 'CHENNAI CAKES' },
+            { lat: 13.0611366, lng: 80.2511517, type: 'bakery', name: 'LA CHOCOLATE' },
+            { lat: 13.0375382, lng: 80.22111509999999, type: 'bakery', name: 'The Madras Patissiere' },
+            { lat: 13.034663, lng: 80.2138473, type: 'bakery', name: 'Bakeman Begins by Karthika Sravanthi' },
+            { lat: 13.0791306, lng: 80.23366229999999, type: 'bakery', name: 'Bakingo' },
+            { lat: 13.0605745, lng: 80.1383438, type: 'bakery', name: 'THE TABLE' },
+            { lat: 13.0905, lng: 80.18934879999999, type: 'bakery', name: 'Cakeistry' },
+            { lat: 13.0713688, lng: 80.2266404, type: 'bakery', name: 'Crumbs And Layers' },
+            { lat: 13.0569467, lng: 80.242469, type: 'bakery', name: 'The Mousse Studio by Ubaidha' },
+            { lat: 13.0689958, lng: 80.24149190000001, type: 'bakery', name: 'The French loaf' },
+            { lat: 12.9378182, lng: 80.25241129999999, type: 'bakery', name: 'City Cakes & Bakes' },
+            { lat: 13.06547, lng: 80.250576, type: 'bakery', name: 'Shradha Lulla Gourmet Desserts' },
+            { lat: 13.0799118, lng: 80.21353309999999, type: 'bakery', name: 'Hew And Frost' },
+            { lat: 12.9468233, lng: 80.2317089, type: 'bakery', name: 'Oven fresh' },
+            { lat: 13.0817245, lng: 80.2071016, type: 'bakery', name: 'Bake My Day' },
+            { lat: 13.086127, lng: 80.230774, type: 'bakery', name: 'Bakealicious' },
+            { lat: 13.0749375, lng: 80.25374649999999, type: 'bakery', name: 'Home bakes' },
+            { lat: 13.0407955, lng: 80.2490047, type: 'bakery', name: 'Nouvelle' },
+            { lat: 13.0811892, lng: 80.254964, type: 'bakery', name: 'Cake Square' },
+            { lat: 12.9190519, lng: 80.2300343, type: 'bakery', name: 'The Cake Factory' },
+            { lat: 13.089224, lng: 80.2414932, type: 'bakery', name: 'The Cake Studio' },
+            { lat: 12.9822738, lng: 80.2367881, type: 'bakery', name: 'Happy Cakes' },
+            { lat: 13.0108519, lng: 80.2233979, type: 'pub', name: 'The Flying Elephant' },
+            { lat: 13.0269769, lng: 80.2547524, type: 'pub', name: 'The Velveteen Rabbit' },
+            { lat: 12.9988336, lng: 80.2708769, type: 'pub', name: 'M’Bessy' },
+            { lat: 13.0459181, lng: 80.2580458, type: 'pub', name: 'Sera, The Tapas Bar' },
+            { lat: 13.0849557, lng: 80.2101342, type: 'pub', name: 'Radio Room' },
+            { lat: 13.0029573, lng: 80.2720383, type: 'pub', name: 'Boats: Based On A True Story' },
+            { lat: 13.0606755, lng: 80.2507108, type: 'pub', name: 'Ink 303' },
+            { lat: 13.0373222, lng: 80.2123115, type: 'pub', name: 'Big Bang Theory' },
+            { lat: 13.0367914, lng: 80.2676303, type: 'pub', name: 'Illusions: The Madras Pub' },
+            { lat: 13.0404112, lng: 80.2437973, type: 'pub', name: 'Bike & Barrel' },
+            { lat: 13.0430857, lng: 80.2442085, type: 'pub', name: '10 Downing Street' },
+            { lat: 13.0615617, lng: 80.2641474, type: 'pub', name: 'Blend' },
+            { lat: 13.0528818, lng: 80.249861, type: 'pub', name: 'The Leather Bar' },
+            { lat: 13.020998, lng: 80.245614, type: 'pub', name: 'Secret Society' },
+            { lat: 13.007628, lng: 80.2082436, type: 'pub', name: 'Moon and SixPence' },
+            { lat: 13.0533918, lng: 80.249966, type: 'pub', name: 'Pasha' },
+            { lat: 13.0432094, lng: 80.2446995, type: 'pub', name: 'Sudaka' },
+            { lat: 13.0347418, lng: 80.2375796, type: 'pub', name: 'The Vault Bar Stock Exchange' },
+            { lat: 13.0294478, lng: 80.2496189, type: 'pub', name: 'Gatsby 2000' },
+            { lat: 13.0498937, lng: 80.2095018, type: 'mall', name: 'Nexus Vijaya Mall' },
+            { lat: 13.0553551, lng: 80.2579667, type: 'theatre', name: 'Sathyam' },
+            { lat: 12.9906971, lng: 80.2167184, type: 'theatre', name: 'Luxe Cinemas' },
+            { lat: 13.0504652, lng: 80.2096475, type: 'theatre', name: 'Palazzo' },
+            { lat: 13.1210302, lng: 80.2325781, type: 'theatre', name: 'S2 Cinemas' },
+            { lat: 13.0789613, lng: 80.2493535, type: 'theatre', name: 'Sangam Cinemas' },
+            { lat: 13.0493837, lng: 80.2100269, type: 'theatre', name: 'Kamala Cinemas' },
+            { lat: 13.0753710, lng: 80.1957820, type: 'theatre', name: 'Rohini Cinemas' },
+            { lat: 13.0473660, lng: 80.2449405, type: 'theatre', name: 'AGS Cinemas' },
+            { lat: 13.0805063, lng: 80.1971298, type: 'theatre', name: 'PVR Cinemas' },
+            { lat: 12.9816860, lng: 80.1652774, type: 'theatre', name: 'PVR Aerohub' },
+            { lat: 12.9786986, lng: 80.1616657, type: 'theatre', name: 'PVR Grand Galada' },
+            { lat: 13.0305859, lng: 80.2071909, type: 'theatre', name: 'Kasi Talkies' },
+            { lat: 13.0761553, lng: 80.2638793, type: 'theatre', name: 'Albert Cinema' },
+            { lat: 13.0345299, lng: 80.2104202, type: 'theatre', name: 'Udhayam Multiplex' },
+            { lat: 12.9895436, lng: 80.2561147, type: 'theatre', name: 'PVR Cinemas Thyagaraja' },
+            { lat: 13.1229597, lng: 80.1474767, type: 'theatre', name: 'Rakki Cinemas' },
+            { lat: 13.1135953, lng: 80.1571614, type: 'theatre', name: 'Murugan Cinemas' },
+            { lat: 12.9547637, lng: 80.1414066, type: 'theatre', name: 'Vetri Theatre' },
+            { lat: 12.9260794, lng: 80.1116536, type: 'theatre', name: 'Vidya Cinema' },
+            { lat: 13.1174065, lng: 80.2844169, type: 'theatre', name: 'Maharani Cinema' },
+            { lat: 13.1198042, lng: 80.2422939, type: 'theatre', name: 'Sri Brindha Theatre' },
+            { lat: 13.1206051, lng: 80.0979220, type: 'theatre', name: 'Meenakshi Cinema' },
+            { lat: 13.1161800, lng: 80.2930855, type: 'theatre', name: 'iDream Cinemas' },
+            { lat: 13.1324740, lng: 80.2428820, type: 'theatre', name: 'Pandian Theatre' },
+            { lat: 12.9802339, lng: 80.1819893, type: 'theatre', name: 'Velan Theatre' },
+            { lat: 12.9153470, lng: 80.2297946, type: 'theatre', name: 'Arvind Theatre' },
+            { lat: 13.0196375, lng: 80.2232003, type: 'theatre', name: 'Raj Theatre' },
+            { lat: 13.0508103, lng: 80.0945682, type: 'theatre', name: 'Sundar Theatre' },
+            { lat: 12.9887681, lng: 80.2555674, type: 'theatre', name: 'Jayanthi Theatre' },
+            { lat: 12.9848240, lng: 80.1289216, type: 'theatre', name: 'Ganesh Cinemas' },
+            { lat: 13.0508492, lng: 80.2038446, type: 'theatre', name: 'S.S.R. Pankajam Theatre' },
+            { lat: 12.9697572, lng: 80.1493263, type: 'theatre', name: 'Janatha Theatre 4K' },
+            { lat: 12.9849546, lng: 80.2239838, type: 'theatre', name: 'Sri Rajalakshmi Theatre' },
+            { lat: 12.8634681, lng: 80.2418359, type: 'theatre', name: 'PVR Heritage' },
+            { lat: 13.0569467, lng: 80.2424690, type: 'theatre', name: 'Vasanthi Cinema' },
+            { lat: 12.8480369, lng: 80.2398575, type: 'theatre', name: 'Mayajaal' },
+            { lat: 13.0808186, lng: 80.1960939, type: 'cafe', name: 'The Brew Room' },
+            { lat: 12.9458078, lng: 80.2540134, type: 'cafe', name: 'Tryst Café' },
+            { lat: 13.0283629, lng: 80.2502141, type: 'cafe', name: 'Chamiers Café' },
+            { lat: 13.0573276, lng: 80.2593957, type: 'cafe', name: 'Wild Garden Cafe - Amethyst' },
+            { lat: 12.9106214, lng: 80.2500102, type: 'cafe', name: 'Shiraz Art Cafe' },
+            { lat: 13.0224054, lng: 80.2423288, type: 'cafe', name: 'Ciclo Café' },
+            { lat: 12.8956414, lng: 80.2523387, type: 'cafe', name: 'Kipling Café' },
+            { lat: 13.0109396, lng: 80.2541023, type: 'cafe', name: 'Azzuri Bay' },
+            { lat: 13.011213, lng: 80.220894, type: 'cafe', name: 'Café Mercara Express' },
+            { lat: 12.9860867, lng: 80.250304, type: 'cafe', name: 'Higginbothams Writer\'s Cafe' },
+            { lat: 13.0059296, lng: 80.2507195, type: 'cafe', name: 'That Madras Place' },
+            { lat: 13.0489597, lng: 80.2399487, type: 'cafe', name: 'Tea Villa Café' },
+            { lat: 13.034913, lng: 80.2186426, type: 'cafe', name: 'Cafe Arabica - A Sweet Tooth Heaven!' },
+            { lat: 13.0367914, lng: 80.2676303, type: 'cafe', name: 'Zuka - Quite a Chocolate Heaven!' },
+            { lat: 13.017436, lng: 80.270614, type: 'cafe', name: 'Fromage - The Cheesy Wonderland' },
+            { lat: 12.9347537, lng: 80.2335747, type: 'cafe', name: 'Amelie\'s Cafe and Creamery' },
+            { lat: 13.0317284, lng: 80.2454832, type: 'cafe', name: 'Cafe de Paris' },
+            { lat: 13.0610964, lng: 80.2482131, type: 'cafe', name: 'Sandy\'s Chocolate Laboratory' },
+            { lat: 13.0334869, lng: 80.2531271, type: 'cafe', name: 'Gastronomer by Double Roti' },
+            { lat: 13.0404742, lng: 80.2503335, type: 'cafe', name: 'Cafe Cakebee' },
+            { lat: 13.0601807, lng: 80.2481372, type: 'cafe', name: 'Nolita' },
+            { lat: 13.0395129, lng: 80.2534977, type: 'cafe', name: 'The Bark' },
+            { lat: 12.9924596, lng: 80.2174862, type: 'cafe', name: 'Pappa Roti' },
+            { lat: 13.0428676, lng: 80.26825, type: 'cafe', name: 'Bistro 1427' },
+            { lat: 13.0401164, lng: 80.2375573, type: 'cafe', name: 'This Way In' },
+            { lat: 13.0050177, lng: 80.2512017, type: 'cafe', name: 'Writer\'s Cafe' },
+            { lat: 13.0706595, lng: 80.2385003, type: 'cafe', name: 'Waf O’ Bel' },
+            { lat: 13.0399575, lng: 80.2558649, type: 'cafe', name: 'Amelie’s' },
+            { lat: 13.0497654, lng: 80.2422262, type: 'cafe', name: 'Basil With A Twist' },
+            { lat: 12.9933136, lng: 80.2554428, type: 'cafe', name: 'Cleo’s Grill & Café' },
+            { lat: 13.0539587, lng: 80.2640711, type: 'pub', name: 'Chilli’s American Grill & Bar' },
+            { lat: 12.8748016, lng: 80.2273203, type: 'restaurant', name: 'Onesta' },
+            { lat: 13.0507151, lng: 80.2037946, type: 'restaurant', name: 'Copper Kitchen' },
+            { lat: 13.0459181, lng: 80.2580458, type: 'pub', name: 'Sera – The Tapas Bar & Restaurant' },
+            { lat: 12.9106507, lng: 80.2285492, type: 'pub', name: 'Urban Lounge' },
+            { lat: 13.0584546, lng: 80.2641844, type: 'mall', name: 'Express Avenue' },
+            { lat: 13.0617889, lng: 80.2612411, type: 'mall', name: 'Spencer Plaza' },
+            { lat: 12.9929399, lng: 80.2178681, type: 'mall', name: 'Phoenix Marketcity' },
+            { lat: 13.0687854, lng: 80.2573166, type: 'mall', name: 'Alsa Mall' },
+            { lat: 13.0431252, lng: 80.2484821, type: 'mall', name: 'Ramee Mall' },
+            { lat: 12.9366488, lng: 80.0786805, type: 'themepark', name: 'Kishkinta' },
+            { lat: 12.914221, lng: 80.250524, type: 'themepark', name: 'VGP Universal Kingdom' },
+            { lat: 12.8259311, lng: 80.2442018, type: 'themepark', name: 'MGM Dizzee World' },
+            { lat: 13.0300355, lng: 80.0276134, type: 'themepark', name: 'Queensland' },
+            { lat: 13.092697, lng: 80.2568158, type: 'turf', name: 'The Madras Turf' },
+            { lat: 13.0888224, lng: 80.2506455, type: 'turf', name: 'Koottam Turf' },
+            { lat: 13.0998188, lng: 80.2535242, type: 'turf', name: 'HotFut SPR Sports' },
+            { lat: 12.9968503, lng: 80.2163332, type: 'turf', name: 'Turf 137' },
+            { lat: 13.0904494, lng: 80.2611544, type: 'turf', name: 'Box to Box' },
+            { lat: 12.9460275, lng: 80.2005289, type: 'turf', name: 'Madras Tekkerz Turf' },
+            { lat: 13.0784962, lng: 80.2339266, type: 'turf', name: 'Tiki Taka' },
+            { lat: 13.0734394, lng: 80.2214957, type: 'turf', name: 'Double Dribble by Tiki Taka' },
+            { lat: 13.0625416, lng: 80.2101889, type: 'turf', name: 'Sports Leap' },
+            { lat: 12.9681623, lng: 80.2079633, type: 'turf', name: 'Namba Turf 91' },
+            { lat: 13.0394888, lng: 80.1928276, type: 'turf', name: 'Edit Sports Arena' },
+            { lat: 13.0686091, lng: 80.2578363, type: 'entertainment', name: 'Gamistry' },
+            { lat: 13.0023861, lng: 80.2551972, type: 'entertainment', name: 'Kartwheel' },
+            { lat: 13.0611726, lng: 80.2513762, type: 'entertainment', name: 'Airborne' },
+            { lat: 13.0073119, lng: 80.2038827, type: 'entertainment', name: 'Uptown Kathipara Urban Square' },
+            { lat: 12.2958104, lng: 76.6393805, type: 'entertainment', name: 'Kidoos Fun Park' },
+            { lat: 13.0552914, lng: 80.2498353, type: 'entertainment', name: 'Freeing India' },
+            { lat: 13.0602339, lng: 80.2478578, type: 'entertainment', name: 'G Sector - Lazer Tag' },
+            { lat: 13.0552647, lng: 80.2498216, type: 'entertainment', name: 'VR Galaxy' },
+            { lat: 13.0352298, lng: 80.2538538, type: 'entertainment', name: 'Untangle' },
+            { lat: 13.0028919, lng: 80.2721309, type: 'entertainment', name: 'Nassa UTH Hub' },
+            { lat: 13.0843414, lng: 80.2218609, type: 'entertainment', name: 'VR Game Café' },
+            { lat: 13.0815088, lng: 80.2441891, type: 'entertainment', name: 'Dices and Drama' },
+            { lat: 12.9360415, lng: 80.2362973, type: 'entertainment', name: 'Madras Wheelers Skatepark' },
+            { lat: 13.0672803, lng: 80.2435005, type: 'entertainment', name: 'Gameweb World' },
+            { lat: 13.039031, lng: 80.236351, type: 'entertainment', name: 'Game On Café' },
+            { lat: 12.9913909, lng: 80.2165986, type: 'entertainment', name: 'Hamelys Play' },
+            { lat: 13.0602943, lng: 80.2474831, type: 'entertainment', name: 'Kaleidozone' },
+            { lat: 13.055305, lng: 80.2498305, type: 'entertainment', name: 'Xtrablast' },
+            { lat: 13.0535053, lng: 80.2506777, type: 'entertainment', name: 'Soap Football' },
+            { lat: 13.0739868, lng: 80.228181, type: 'entertainment', name: 'FunZone' },
+            { lat: 12.9346732, lng: 80.234612, type: 'entertainment', name: 'Elite Gamer' }
             ];
 
             const poiIcons = {
@@ -130,14 +316,6 @@
                     strokeWeight: 2,
                     scale: 3.5
                 },
-                'nightclub': {
-                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-                    fillColor: 'brown',
-                    fillOpacity: 1,
-                    strokeColor: 'brown',
-                    strokeWeight: 2,
-                    scale: 3.5
-                },
                 'themepark': {
                     path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
                     fillColor: 'cyan',
@@ -167,7 +345,6 @@
             poiData.forEach(poi => {
                 const marker = new google.maps.Marker({
                     position: { lat: poi.lat, lng: poi.lng },
-                    map: map,
                     icon: poiIcons[poi.type]
                 });
 
@@ -178,7 +355,26 @@
                 marker.addListener('click', () => {
                     infowindow.open(map, marker);
                 });
+
+                if (!poiMarkers[poi.type]) {
+                    poiMarkers[poi.type] = [];
+                }
+                poiMarkers[poi.type].push(marker);
             });
+        }
+
+        function showPOIs(type) {
+            Object.keys(poiMarkers).forEach(poiType => {
+                poiMarkers[poiType].forEach(marker => {
+                    marker.setMap(null);
+                });
+            });
+
+            if (poiMarkers[type]) {
+                poiMarkers[type].forEach(marker => {
+                    marker.setMap(map);
+                });
+            }
         }
     </script>
 </head>
@@ -186,19 +382,18 @@
     <div id="map"></div>
     <div id="info">
         <h2>Distribution Information</h2>
-        <p>This map shows the location-wise distribution points of our energy drink across various areas in Chennai. Click on the markers to see the number of distributions at each location.</p>
+        <p>This map shows the location-wise distribution points of our energy drink across various areas in Chennai. Click on the markers to see the number of distributions at each location. These are the important POI's which can be viewed.</p>
         <h3>Points of Interest</h3>
         <ul>
-            <li style="color: blue;">Theatres</li>
-            <li style="color: green;">Malls</li>
-            <li style="color: red;">Bakeries</li>
-            <li style="color: purple;">Pubs</li>
-            <li style="color: orange;">Cafes</li>
-            <li style="color: pink;">Restaurants</li>
-            <li style="color: brown;">Night Clubs</li>
-            <li style="color: cyan;">Theme Parks</li>
-            <li style="color: magenta;">Turfs</li>
-            <li style="color: lime;">Entertainment</li>
+            <li class="poi-link" onclick="showPOIs('theatre')" style="color: blue;">Theatres</li>
+            <li class="poi-link" onclick="showPOIs('mall')" style="color: green;">Malls</li>
+            <li class="poi-link" onclick="showPOIs('bakery')" style="color: red;">Bakeries</li>
+            <li class="poi-link" onclick="showPOIs('pub')" style="color: purple;">Pubs</li>
+            <li class="poi-link" onclick="showPOIs('cafe')" style="color: orange;">Cafes</li>
+            <li class="poi-link" onclick="showPOIs('restaurant')" style="color: pink;">Restaurants</li>
+            <li class="poi-link" onclick="showPOIs('themepark')" style="color: cyan;">Theme Parks</li>
+            <li class="poi-link" onclick="showPOIs('turf')" style="color: magenta;">Turfs</li>
+            <li class="poi-link" onclick="showPOIs('entertainment')" style="color: lime;">Entertainment</li>
         </ul>
     </div>
 </body>
